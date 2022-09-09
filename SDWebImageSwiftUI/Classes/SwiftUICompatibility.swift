@@ -11,7 +11,7 @@ import SwiftUI
 
 #if os(iOS) || os(tvOS) || os(macOS)
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 struct PlatformAppear: PlatformViewRepresentable {
     let appearAction: () -> Void
     let disappearAction: () -> Void
@@ -38,7 +38,7 @@ struct PlatformAppear: PlatformViewRepresentable {
     #endif
 }
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 class PlatformAppearView: PlatformView {
     var appearAction: () -> Void = {}
     var disappearAction: () -> Void = {}
@@ -66,7 +66,7 @@ class PlatformAppearView: PlatformView {
 
 #endif
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension View {
     /// Used UIKit/AppKit behavior to detect the SwiftUI view's visibility.
     /// This hack is because of SwiftUI 1.0/2.0 buggy behavior. The built-in `onAppear` and `onDisappear` is so massive on some cases. Where UIKit/AppKit is solid.

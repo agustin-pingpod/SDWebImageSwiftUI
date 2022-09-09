@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 /// A  type to build the indicator
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct Indicator<T> where T : View {
     var content: (Binding<Bool>, Binding<Double>) -> T
     
@@ -25,7 +25,7 @@ public struct Indicator<T> where T : View {
 }
 
 /// A protocol to report indicator progress
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public protocol IndicatorReportable : ObservableObject {
     /// whether indicator is loading or not
     var isLoading: Bool { get set }
@@ -36,7 +36,7 @@ public protocol IndicatorReportable : ObservableObject {
 /// A implementation detail View Modifier with indicator
 /// SwiftUI View Modifier construced by using a internal View type which modify the `body`
 /// It use type system to represent the view hierarchy, and Swift `some View` syntax to hide the type detail for users
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct IndicatorViewModifier<T, V> : ViewModifier where T : View, V : IndicatorReportable {
     
     /// The progress reporter
@@ -56,7 +56,7 @@ public struct IndicatorViewModifier<T, V> : ViewModifier where T : View, V : Ind
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Indicator where T == ActivityIndicator {
     /// Activity Indicator
     public static var activity: Indicator {
@@ -74,7 +74,7 @@ extension Indicator where T == ActivityIndicator {
     }
 }
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension Indicator where T == ProgressIndicator {
     /// Progress Indicator
     public static var progress: Indicator {

@@ -10,7 +10,7 @@ import SwiftUI
 import SDWebImage
 
 /// A Image View type to load image from url. Supports static/animated image format.
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public struct WebImage : View {
     var configurations: [(Image) -> Image] = []
     
@@ -185,7 +185,7 @@ public struct WebImage : View {
 }
 
 // Layout
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension WebImage {
     func configure(_ block: @escaping (Image) -> Image) -> WebImage {
         var result = self
@@ -223,7 +223,7 @@ extension WebImage {
 }
 
 // Completion Handler
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension WebImage {
     
     /// Provide the action when image load fails.
@@ -255,7 +255,7 @@ extension WebImage {
 }
 
 // WebImage Modifier
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension WebImage {
     
     /// Associate a placeholder when loading image with url
@@ -296,7 +296,7 @@ extension WebImage {
 }
 
 // Indicator
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension WebImage {
     
     /// Associate a indicator when loading image with url
@@ -313,7 +313,7 @@ extension WebImage {
 }
 
 // Animated Image
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension WebImage {
     
     /// Total loop count for animated image rendering. Defaults to nil.
@@ -383,7 +383,7 @@ extension WebImage {
 }
 
 #if DEBUG
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 struct WebImage_Previews : PreviewProvider {
     static var previews: some View {
         Group {
