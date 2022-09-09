@@ -107,6 +107,7 @@ public struct WebImage : View {
         .onChange(of: playerSettings) {
             imagePlayer.settings = $0
         }
+        .modifier(IndicatorViewModifier(reporter: $imageManager))
     }
     
     /// Configure the platform image into the SwiftUI rendering image
@@ -299,20 +300,22 @@ extension WebImage {
     }
 }
 
+
 // Indicator
+
 @available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension WebImage {
     
     /// Associate a indicator when loading image with url
     /// - Parameter indicator: The indicator type, see `Indicator`
-    public func indicator<T>(_ indicator: Indicator<T>) -> some View where T : View {
-        return self.modifier(IndicatorViewModifier(reporter: imageManager, indicator: indicator))
+    public func indicator(_ indicator: Indicator) -> some View {
+        environment(\.indicator, indicator)
     }
     
     /// Associate a indicator when loading image with url, convenient method with block
     /// - Parameter content: A view that describes the indicator.
-    public func indicator<T>(@ViewBuilder content: @escaping (_ isAnimating: Binding<Bool>, _ progress: Binding<Double>) -> T) -> some View where T : View {
-        return indicator(Indicator(content: content))
+    public func indicator<V: View>(@ViewBuilder content: @escaping (Indicator.Configuration) -> V) -> some View {
+        indicator(.init(content: content))
     }
 }
 
