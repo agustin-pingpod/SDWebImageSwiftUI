@@ -10,22 +10,33 @@ import Foundation
 import SwiftUI
 
 /// A  type to build the indicator
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct Indicator<T> where T : View {
-    var content: (Binding<Bool>, Binding<Double>) -> T
-    
-    /// Create a indicator with builder
-    /// - Parameter builder: A builder to build indicator
-    /// - Parameter isAnimating: A Binding to control the animation. If image is during loading, the value is true, else (like start loading) the value is false.
-    /// - Parameter progress: A Binding to control the progress during loading. Value between [0.0, 1.0]. If no progress can be reported, the value is 0.
-    /// Associate a indicator when loading image with url
-    public init(@ViewBuilder content: @escaping (_ isAnimating: Binding<Bool>, _ progress: Binding<Double>) -> T) {
-        self.content = content
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+public struct Indicator {
+    public struct Configuration {
+        /// A Binding to control the animation. If image is during loading, the value is true, else (like start loading) the value is false.
+        public var isAnimating: Binding<Bool>
+        /// A Binding to control the progress during loading. Value between [0.0, 1.0]. If no progress can be reported, the value is 0.
+        public var progress: Binding<Double>
+
+        public init(isAnimating: Binding<Bool>, progress: Binding<Double>) {
+            self.isAnimating = isAnimating
+            self.progress = progress
+        }
+    }
+
+    private let content: (Configuration) -> AnyView
+
+    public init<V: View>(@ViewBuilder content: @escaping (Configuration) -> V) {
+        self.content = { AnyView(content($0)) }
+    }
+
+    public func makeBody(configuration: Configuration) -> AnyView {
+        content(configuration)
     }
 }
 
 /// A protocol to report indicator progress
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public protocol IndicatorReportable : ObservableObject {
     /// whether indicator is loading or not
     var isLoading: Bool { get set }
@@ -36,59 +47,70 @@ public protocol IndicatorReportable : ObservableObject {
 /// A implementation detail View Modifier with indicator
 /// SwiftUI View Modifier construced by using a internal View type which modify the `body`
 /// It use type system to represent the view hierarchy, and Swift `some View` syntax to hide the type detail for users
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-public struct IndicatorViewModifier<T, V> : ViewModifier where T : View, V : IndicatorReportable {
-    
-    /// The progress reporter
-    @ObservedObject public var reporter: V
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+struct IndicatorViewModifier: ViewModifier {
+    /// whether indicator is loading or not
+    @Binding var isLoading: Bool
+    /// indicator progress, should only be used for indicator binding, value between [0.0, 1.0]
+    @Binding var progress: Double
     
     /// The indicator
-    public var indicator: Indicator<T>
+    @Environment(\.indicator) private var indicator
     
-    public func body(content: Content) -> some View {
+    func body(content: Content) -> some View {
         ZStack {
             content
-            if reporter.isLoading {
-                indicator.content($reporter.isLoading, $reporter.progress)
+            if let indicator = indicator, isLoading {
+                indicator.makeBody(configuration: .init(isAnimating: $isLoading, progress: $progress))
             }
         }
     }
 }
 
-#if os(macOS) || os(iOS) || os(tvOS)
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-extension Indicator where T == ActivityIndicator {
-    /// Activity Indicator
-    public static var activity: Indicator {
-        Indicator { isAnimating, _ in
-            ActivityIndicator(isAnimating)
-        }
-    }
-    
-    /// Activity Indicator with style
-    /// - Parameter style: style
-    public static func activity(style: ActivityIndicator.Style) -> Indicator {
-        Indicator { isAnimating, _ in
-            ActivityIndicator(isAnimating, style: style)
-        }
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+extension IndicatorViewModifier {
+    init<R: IndicatorReportable>(reporter: ObservedObject<R>.Wrapper) {
+        self.init(isLoading: reporter.isLoading, progress: reporter.progress)
     }
 }
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
-extension Indicator where T == ProgressIndicator {
-    /// Progress Indicator
-    public static var progress: Indicator {
-        Indicator { isAnimating, progress in
-            ProgressIndicator(isAnimating, progress: progress)
-        }
+extension EnvironmentValues {
+    @available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+    private struct IndicatorKey: EnvironmentKey {
+        static var defaultValue: Indicator? { nil }
     }
-    
-    /// Progress Indicator with style
-    /// - Parameter style: style
-    public static func progress(style: ProgressIndicator.Style) -> Indicator {
-        Indicator { isAnimating, progress in
-            ProgressIndicator(isAnimating, progress: progress, style: style)
-        }
+
+    @available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+    var indicator: Indicator? {
+        get { self[IndicatorKey.self] }
+        set { self[IndicatorKey.self] = newValue }
     }
 }
-#endif
+
+// Activity Indicator
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+extension Indicator {
+    /// Activity Indicator
+    public static var activity: Self {
+        .init { ActivityIndicator($0.isAnimating) }
+    }
+
+    /// Activity Indicator
+    public static func activity(style: ActivityIndicator.Style) -> Self {
+        .init { ActivityIndicator($0.isAnimating, style: style) }
+    }
+}
+
+// Progress Indicator
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+extension Indicator {
+    /// Progress Indicator
+    public static var progress: Self {
+        .init { ProgressIndicator($0.isAnimating, progress: $0.progress) }
+    }
+
+    /// Progress Indicator
+    public static func progress(style: ProgressIndicator.Style) -> Self {
+        .init { ProgressIndicator($0.isAnimating, progress: $0.progress, style: style) }
+    }
+}

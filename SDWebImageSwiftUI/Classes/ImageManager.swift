@@ -9,9 +9,18 @@
 import SwiftUI
 import SDWebImage
 
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+extension ImageManager {
+    struct Handlers {
+        var onSuccess: ((PlatformImage, Data?, SDImageCacheType) -> Void)?
+        var onFailure: ((Error) -> Void)?
+        var onProgress: ((Int, Int) -> Void)?
+    }
+}
+
 /// A Image observable object for handle image load process. This drive the Source of Truth for image loading status.
 /// You can use `@ObservedObject` to associate each instance of manager to your View type, which update your view's body from SwiftUI framework when image was loaded.
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public final class ImageManager : ObservableObject {
     /// loaded image, note when progressive loading, this will published multiple times with different partial image
     @Published public var image: PlatformImage?
@@ -35,9 +44,8 @@ public final class ImageManager : ObservableObject {
     var url: URL?
     var options: SDWebImageOptions
     var context: [SDWebImageContextOption : Any]?
-    var successBlock: ((PlatformImage, Data?, SDImageCacheType) -> Void)?
-    var failureBlock: ((Error) -> Void)?
-    var progressBlock: ((Int, Int) -> Void)?
+
+    var handlers = ImageManager.Handlers()
     
     /// Create a image manager for loading the specify url, with custom options and context.
     /// - Parameter url: The image url
@@ -74,7 +82,7 @@ public final class ImageManager : ObservableObject {
             DispatchQueue.main.async {
                 self.progress = progress
             }
-            self.progressBlock?(receivedSize, expectedSize)
+            self.handlers.onProgress?(receivedSize, expectedSize)
         }) { [weak self] (image, data, error, cacheType, finished, _) in
             guard let self = self else {
                 return
@@ -95,9 +103,9 @@ public final class ImageManager : ObservableObject {
                 self.isLoading = false
                 self.progress = 1
                 if let image = image {
-                    self.successBlock?(image, data, cacheType)
+                    self.handlers.onSuccess?(image, data, cacheType)
                 } else {
-                    self.failureBlock?(error ?? NSError())
+                    self.handlers.onFailure?(error ?? NSError())
                 }
             }
         }
@@ -115,30 +123,30 @@ public final class ImageManager : ObservableObject {
 }
 
 // Completion Handler
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ImageManager {
     /// Provide the action when image load fails.
     /// - Parameters:
     ///   - action: The action to perform. The first arg is the error during loading. If `action` is `nil`, the call has no effect.
-    public func setOnFailure(perform action: ((Error) -> Void)? = nil) {
-        self.failureBlock = action
+    public func onFailure(perform action: ((Error) -> Void)? = nil) {
+        self.handlers.onFailure = action
     }
     
     /// Provide the action when image load successes.
     /// - Parameters:
     ///   - action: The action to perform. The first arg is the loaded image, the second arg is the loaded image data, the third arg is the cache type loaded from. If `action` is `nil`, the call has no effect.
-    public func setOnSuccess(perform action: ((PlatformImage, Data?, SDImageCacheType) -> Void)? = nil) {
-        self.successBlock = action
+    public func onSuccess(perform action: ((PlatformImage, Data?, SDImageCacheType) -> Void)? = nil) {
+        self.handlers.onSuccess = action
     }
     
     /// Provide the action when image load progress changes.
     /// - Parameters:
     ///   - action: The action to perform. The first arg is the received size, the second arg is the total size, all in bytes. If `action` is `nil`, the call has no effect.
-    public func setOnProgress(perform action: ((Int, Int) -> Void)? = nil) {
-        self.progressBlock = action
+    public func onProgress(perform action: ((Int, Int) -> Void)? = nil) {
+        self.handlers.onProgress = action
     }
 }
 
 // Indicator Reportor
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension ImageManager: IndicatorReportable {}

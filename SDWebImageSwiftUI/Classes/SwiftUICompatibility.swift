@@ -11,7 +11,7 @@ import SwiftUI
 
 #if os(iOS) || os(tvOS) || os(macOS)
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 struct PlatformAppear: PlatformViewRepresentable {
     let appearAction: () -> Void
     let disappearAction: () -> Void
@@ -38,27 +38,31 @@ struct PlatformAppear: PlatformViewRepresentable {
     #endif
 }
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 class PlatformAppearView: PlatformView {
     var appearAction: () -> Void = {}
     var disappearAction: () -> Void = {}
     
     #if os(iOS) || os(tvOS)
     override func willMove(toWindow newWindow: UIWindow?) {
-        if newWindow != nil {
-            appearAction()
-        } else {
-            disappearAction()
+        DispatchQueue.main.async {
+            if newWindow != nil {
+                self.appearAction()
+            } else {
+                self.disappearAction()
+            }
         }
     }
     #endif
     
     #if os(macOS)
     override func viewWillMove(toWindow newWindow: NSWindow?) {
-        if newWindow != nil {
-            appearAction()
-        } else {
-            disappearAction()
+        DispatchQueue.main.async {
+            if newWindow != nil {
+                appearAction()
+            } else {
+                disappearAction()
+            }
         }
     }
     #endif
@@ -66,7 +70,7 @@ class PlatformAppearView: PlatformView {
 
 #endif
 
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension View {
     /// Used UIKit/AppKit behavior to detect the SwiftUI view's visibility.
     /// This hack is because of SwiftUI 1.0/2.0 buggy behavior. The built-in `onAppear` and `onDisappear` is so massive on some cases. Where UIKit/AppKit is solid.

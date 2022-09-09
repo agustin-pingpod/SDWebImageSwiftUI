@@ -125,7 +125,7 @@ struct ContentView: View {
                         if self.animated {
                             #if os(macOS) || os(iOS) || os(tvOS)
                             AnimatedImage(url: URL(string:url), isAnimating: .constant(true))
-                            .onViewUpdate { view, context in
+                            .onViewUpdate { view in
                             #if os(macOS)
                                 view.toolTip = url
                             #endif
