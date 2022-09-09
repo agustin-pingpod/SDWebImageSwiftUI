@@ -45,20 +45,24 @@ class PlatformAppearView: PlatformView {
     
     #if os(iOS) || os(tvOS)
     override func willMove(toWindow newWindow: UIWindow?) {
-        if newWindow != nil {
-            appearAction()
-        } else {
-            disappearAction()
+        DispatchQueue.main.async {
+            if newWindow != nil {
+                self.appearAction()
+            } else {
+                self.disappearAction()
+            }
         }
     }
     #endif
     
     #if os(macOS)
     override func viewWillMove(toWindow newWindow: NSWindow?) {
-        if newWindow != nil {
-            appearAction()
-        } else {
-            disappearAction()
+        DispatchQueue.main.async {
+            if newWindow != nil {
+                appearAction()
+            } else {
+                disappearAction()
+            }
         }
     }
     #endif

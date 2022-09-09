@@ -9,26 +9,54 @@
 import SwiftUI
 import SDWebImage
 
+@available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
+extension ImagePlayer {
+    public struct Settings: Equatable {
+        /// Max buffer size
+        public var maxBufferSize: UInt?
+
+        /// Custom loop count
+        public var customLoopCount: UInt?
+
+        /// Animation runloop mode
+        public var runLoopMode: RunLoop.Mode = .common
+
+        /// Animation playback rate
+        public var playbackRate: Double = 1.0
+
+        /// Animation playback mode
+        public var playbackMode: SDAnimatedImagePlaybackMode = .normal
+
+        public init() { }
+    }
+}
+
 /// A Image observable object for handle aniamted image playback. This is used to avoid `@State` update may capture the View struct type and cause memory leak.
 @available(iOS 14.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 public final class ImagePlayer : ObservableObject {
-    var player: SDAnimatedImagePlayer?
-    
+    private var player: SDAnimatedImagePlayer?
+
+    public var settings: ImagePlayer.Settings = .init()
+
     /// Max buffer size
-    public var maxBufferSize: UInt?
+    public var maxBufferSize: UInt? { settings.maxBufferSize }
     
     /// Custom loop count
-    public var customLoopCount: UInt?
+    public var customLoopCount: UInt? { settings.customLoopCount }
     
     /// Animation runloop mode
-    public var runLoopMode: RunLoop.Mode = .common
+    public var runLoopMode: RunLoop.Mode { settings.runLoopMode }
     
     /// Animation playback rate
-    public var playbackRate: Double = 1.0
+    public var playbackRate: Double { settings.playbackRate }
     
     /// Animation playback mode
-    public var playbackMode: SDAnimatedImagePlaybackMode = .normal
-    
+    public var playbackMode: SDAnimatedImagePlaybackMode { settings.playbackMode }
+
+    init(settings: ImagePlayer.Settings? = nil) {
+        self.settings = settings ?? .init()
+    }
+
     deinit {
         player?.stopPlaying()
         currentFrame = nil
